@@ -26,7 +26,13 @@ COPY . .
 ENV DOCKER_ENV=true
 
 # 生成生产构建
-RUN pnpm run build
+# 判断是否为 arm/v7 平台
+RUN if [ "$TARGETARCH" = "arm" ] && [ "$TARGETVARIANT" = "v7" ]; then \
+      echo "Skipping build for arm/v7 due to SWC binary unavailability"; \
+    else \
+      echo "Running production build..."; \
+      pnpm run build; \
+    fi
 
 # ---- 第 3 阶段：生成运行时镜像 ----
 FROM node:20-alpine AS runner
